@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-//TODO: Step 2 - Import the rFlutter_Alert package here.
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'quiz_brain.dart';
 
 QuizBrain quizBrain = QuizBrain();
@@ -31,17 +31,16 @@ class QuizPage extends StatefulWidget {
 class _QuizPageState extends State<QuizPage> {
   List<Icon> scoreKeeper = [];
 
+  void popAlert() => setState(
+        () {
+          Navigator.pop(context);
+          scoreKeeper.clear();
+        },
+      );
+
   void checkAnswer(bool userPickedAnswer) {
     bool correctAnswer = quizBrain.getCorrectAnswer();
-
     setState(() {
-      //TODO: Step 4 - Use IF/ELSE to check if we've reached the end of the quiz. If true, execute Part A, B, C, D.
-      //TODO: Step 4 Part A - show an alert using rFlutter_alert (remember to read the docs for the package!)
-      //HINT! Step 4 Part B is in the quiz_brain.dart
-      //TODO: Step 4 Part C - reset the questionNumber,
-      //TODO: Step 4 Part D - empty out the scoreKeeper.
-
-      //TODO: Step 5 - If we've not reached the end, ELSE do the answer checking steps below 👇
       if (userPickedAnswer == correctAnswer) {
         scoreKeeper.add(Icon(
           Icons.check,
@@ -53,7 +52,34 @@ class _QuizPageState extends State<QuizPage> {
           color: Colors.red,
         ));
       }
-      quizBrain.nextQuestion();
+      // Questions are fully answered
+      if (quizBrain.isFinished()) {
+        Alert(
+          closeFunction: () => popAlert(),
+          style: AlertStyle(
+            isOverlayTapDismiss: false,
+          ),
+          context: context,
+          type: AlertType.success,
+          title: 'Congratulations!',
+          desc: 'You have completed all 13 questions!',
+          buttons: [
+            DialogButton(
+              onPressed: () => popAlert(),
+              width: 120,
+              child: Text('Cool Stuff.',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20.0,
+                  )),
+            ),
+          ],
+        ).show();
+        quizBrain.reset();
+      } else {
+        // There are questions left to be answered
+        quizBrain.nextQuestion();
+      }
     });
   }
 
@@ -82,7 +108,7 @@ class _QuizPageState extends State<QuizPage> {
         Expanded(
           child: Padding(
             padding: EdgeInsets.all(15.0),
-            child: FlatButton(
+            child: MaterialButton(
               textColor: Colors.white,
               color: Colors.green,
               child: Text(
@@ -102,7 +128,7 @@ class _QuizPageState extends State<QuizPage> {
         Expanded(
           child: Padding(
             padding: EdgeInsets.all(15.0),
-            child: FlatButton(
+            child: MaterialButton(
               color: Colors.red,
               child: Text(
                 'False',
